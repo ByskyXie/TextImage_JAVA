@@ -1,5 +1,8 @@
 import java.io.*;
+import java.awt.color.ColorSpace;
+import java.awt.image.*;
 import java.util.Scanner;
+import javax.imageio.*;
 import java.util.zip.Inflater;
 
 public class Img{
@@ -22,8 +25,63 @@ public class Img{
 			}
 			System.out.println("请输入输出的文件名：");
 			fileName = in.nextLine();
-			output(trans(file), fileName);
+			byte[] data;
+			file = new File(path);
+			try{
+				//转换操作
+				BufferedImage image = ImageIO.read(file);
+				//变为灰度图像
+				image = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null)
+					.filter(image, null);
+				//获取点阵数据
+				data = (byte[])image.getData().getDataElements(
+					0,0,image.getWidth(),image.getHeight(),null);
+				//输出
+				output(data,fileName,image.getWidth(),image.getHeight());
+			}catch(IOException ioe){
+				System.out.println(ioe);
+			}
+//			output(trans(file), fileName);
 		}while(true);
+	}
+	
+	public static void output(byte[] image,String name,int w,int h){
+		BufferedWriter bw;
+		if(image == null)
+			return;
+		File file = new File(name);
+		try{
+//			if(file.exists()){
+//				System.out.print("该文件已存在,是否继续？");
+//			}
+			file.createNewFile();
+			bw = new BufferedWriter( new FileWriter(file));
+			char[] text = new char[10000];
+			int i,j,x,y,len,cf;
+			//虽然我也不知道为什么返回的数组长度有时!=w*h
+			cf = image.length/w/h;
+			for(i=y=x=0,len=w*h;i<len;i++,x+=cf){
+				if((image[x]&0xFF)<=26) 	text[y++]='#'; 
+				else if((image[x]&0xFF)<=51) text[y++]='%';
+				else if((image[x]&0xFF)<=77) text[y++]='m';
+				else if((image[x]&0xFF)<=102) text[y++]='x';
+				else if((image[x]&0xFF)<=128) text[y++]='o';
+				else if((image[x]&0xFF)<=153) text[y++]='c';
+				else if((image[x]&0xFF)<=179) text[y++]='+';
+				else if((image[x]&0xFF)<=204) text[y++]='^';
+				else if((image[x]&0xFF)<=230) text[y++]='"';
+				else text[y++]=' ';
+				if(y == 9999){
+					//满了
+					bw.write(text,0,9999);
+					y=0;
+				}
+			}
+			bw.write(text,0,y);
+			bw.close();
+		}catch(IOException ioe){
+			System.out.println(ioe);
+		}
 	}
 	
 	public static int[][] trans(File file){
@@ -273,36 +331,5 @@ public class Img{
 		return image;
 	}
 	
-	public static void output(int[][] image,String name){
-		BufferedWriter bw;
-		if(image == null)
-			return;
-		File file = new File(name);
-		try{
-			file.createNewFile();
-			bw = new BufferedWriter( new FileWriter(file));
-			char[] text = new char[image.length*(image[0].length+1)];
-			int i=0;
-			for(int x=0;x<image.length;x++){
-				for(int y=0;y<image[0].length;y++){
-					if(image[x][y]<=26) text[i++]='#'; //分级赋值
-					else if(image[x][y]<=51) text[i++]='%';
-					else if(image[x][y]<=77) text[i++]='m';
-					else if(image[x][y]<=102) text[i++]='x';
-					else if(image[x][y]<=128) text[i++]='o';
-					else if(image[x][y]<=153) text[i++]='c';
-					else if(image[x][y]<=179) text[i++]='+';
-					else if(image[x][y]<=204) text[i++]='^';
-					else if(image[x][y]<=230) text[i++]='"';
-					else text[i++]=' ';
-				}
-				text[i++]='\n';
-			}
-			bw.write(text,0,text.length);
-			bw.close();
-		}catch(IOException ioe){
-			System.out.println(ioe);
-		}
-	}
 }
 //[ .-+coxm%#@]
