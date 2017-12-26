@@ -60,22 +60,35 @@ public class Img{
 			int i,j,x,y,len,cf;
 			//虽然我也不知道为什么返回的数组长度有时!=w*h
 			cf = image.length/w/h;
-			for(i=y=x=0,len=w*h;i<len;i++,x+=cf){
-				if((image[x]&0xFF)<=26) 	text[y++]='#'; 
-				else if((image[x]&0xFF)<=51) text[y++]='%';
-				else if((image[x]&0xFF)<=77) text[y++]='m';
+			for(i=y=x=0,len=w*h; i<len; i++,x+=cf){
+				//[ .'^-"~+*/coxm#$NM%@]
+				if((image[x]&0xFF)<=12) 	text[y++]='#'; 
+				else if((image[x]&0xFF)<=25) text[y++]='@';
+				else if((image[x]&0xFF)<=38) text[y++]='%';
+				else if((image[x]&0xFF)<=51) text[y++]='M';
+				else if((image[x]&0xFF)<=63) text[y++]='N';
+				else if((image[x]&0xFF)<=76) text[y++]='$';
+				else if((image[x]&0xFF)<=89) text[y++]='m';
 				else if((image[x]&0xFF)<=102) text[y++]='x';
-				else if((image[x]&0xFF)<=128) text[y++]='o';
-				else if((image[x]&0xFF)<=153) text[y++]='c';
-				else if((image[x]&0xFF)<=179) text[y++]='+';
-				else if((image[x]&0xFF)<=204) text[y++]='^';
-				else if((image[x]&0xFF)<=230) text[y++]='"';
+				else if((image[x]&0xFF)<=114) text[y++]='o';
+				else if((image[x]&0xFF)<=127) text[y++]='c';
+				else if((image[x]&0xFF)<=140) text[y++]='/';
+				else if((image[x]&0xFF)<=153) text[y++]='*';
+				else if((image[x]&0xFF)<=165) text[y++]='+';
+				else if((image[x]&0xFF)<=178) text[y++]='~';
+				else if((image[x]&0xFF)<=191) text[y++]='"';
+				else if((image[x]&0xFF)<=204) text[y++]='-';
+				else if((image[x]&0xFF)<=216) text[y++]='^';
+				else if((image[x]&0xFF)<=229) text[y++]='\47';
+				else if((image[x]&0xFF)<=242) text[y++]='.';
 				else text[y++]=' ';
-				if(y == 9999){
+				if(y == 9990){
 					//满了
-					bw.write(text,0,9999);
+					bw.write(text,0,9990);
 					y=0;
 				}
+				if(i!=0&&i%w==0)
+					text[y++]='\n';
 			}
 			bw.write(text,0,y);
 			bw.close();
@@ -332,4 +345,3 @@ public class Img{
 	}
 	
 }
-//[ .-+coxm%#@]
